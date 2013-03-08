@@ -1,6 +1,6 @@
 # WTF is Mog and why do I care?
 
-Mog is an acronym for Markdown Object Generator -- but really the name's a shout-out to [my favorite Final Fantasy VI character](http://finalfantasy.wikia.com/wiki/Mog_(Final_Fantasy_VI\)).
+Mog is an acronym for Markup Object Generator -- but really the name's a shout-out to [my favorite Final Fantasy VI character](http://finalfantasy.wikia.com/wiki/Mog_(Final_Fantasy_VI\)).
 
 It uses your HTML to generate surprisingly powerful JavaScript objects that emit events.
 
