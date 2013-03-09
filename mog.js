@@ -29,6 +29,10 @@
             }
         },
 
+        getProperty: function (combo) {
+            return combo.slice(combo.indexOf("[") + 1, -1);
+        },
+
         on: function (event, callBack) {
             var mog = this;
 
@@ -58,34 +62,43 @@
 
             var things = document.querySelectorAll("[data-mog-model-" + mog.model + "]");
 
-            for (var thing = 0; thing < things.length; thing++) {
-                var name = things[thing].getAttribute("data-mog-model-" + mog.model);
-                var role = things[thing].getAttribute("data-mog-model-role");
-                var nodeName = things[thing].nodeName.toLowerCase();
+            var inputs = document.querySelectorAll("*[data-mog-input^='" + mog.model + "']");
+            var outputs = document.querySelectorAll("*[data-mog-output^='" + mog.model + "']");
+            var length = inputs.length;
+            var property = "";
 
-                if ("input" === role) {
-                    // need to filter what data is absorbed here in the event of an unchecked checkbox
-                    if("checkbox" === things[thing].type) {
-                        mog.data[name] = (things[thing].checked) ? things[thing].value : null;
-                    } else {
-                        mog.data[name] = things[thing].value;
-                    }
-                    // mog.inputs[name] = things[thing];
-                    mog.inputs[name] = mog.inputs[name] || [];
-                    mog.inputs[name].push(things[thing]);
+            // inputs
+            while (length--) {
+                property = mog.getProperty(inputs[length].getAttribute("data-mog-input"));
 
-                    if ("select" === nodeName) {
-                        things[thing].addEventListener("change", mog.selectChange.bind(this, things[thing]));
-                    } else if ("radio" === things[thing].type || "checkbox" === things[thing].type) {
-                        things[thing].addEventListener("change", mog.inputChange.bind(this, things[thing]));
-                    }else {
-                        things[thing].addEventListener("keyup", mog.inputChange.bind(this, things[thing]));
-                    }
+                mog.inputs[property] = mog.inputs[property] || [];
+                mog.inputs[property].push(inputs[length]);
+
+                // need to filter what data is absorbed here in the event of an unchecked checkbox
+                // to-do: probably best to use pull() here for this shit
+                if("checkbox" === inputs[length].type) {
+                    mog.data[property] = (inputs[length].checked) ? inputs[length].value : null;
+                } else {
+                    mog.data[property] = inputs[length].value;
                 }
-                if ("output" === role) {
-                    mog.outputs[name] = mog.outputs[name] || [];
-                    mog.outputs[name].push(things[thing]);
+
+                // attach appropriate listeners
+                if ("select" === inputs[length].nodeName.toLowerCase()) {
+                    inputs[length].addEventListener("change", mog.selectChange.bind(this, inputs[length]));
+                } else if ("radio" === inputs[length].type || "checkbox" === inputs[length].type) {
+                    inputs[length].addEventListener("change", mog.inputChange.bind(this, inputs[length]));
+                }else {
+                    inputs[length].addEventListener("keyup", mog.inputChange.bind(this, inputs[length]));
                 }
+            }
+
+            length = outputs.length;
+
+            while (length--) {
+                property = mog.getProperty(outputs[length].getAttribute("data-mog-output"));
+
+                mog.outputs[property] = mog.outputs[property] || [];
+                mog.outputs[property].push(outputs[length]);
             }
         },
 
@@ -155,9 +168,9 @@
             var properties = {};
 
             if (el.type === "checkbox" && !el.checked) {
-                properties[el.getAttribute("data-mog-model-" + this.model)] = null;
+                properties[this.getProperty(el.getAttribute("data-mog-input"))] = null;
             } else {
-                properties[el.getAttribute("data-mog-model-" + this.model)] = el.value;
+                properties[this.getProperty(el.getAttribute("data-mog-input"))] = el.value;
             }
 
             this.set(properties);
@@ -165,7 +178,7 @@
         
         selectChange: function (el) {
             var properties = {};
-            properties[el.getAttribute("data-mog-model-" + this.model)] = el[el.selectedIndex].text;
+            properties[this.getProperty(el.getAttribute("data-mog-input"))] = el[el.selectedIndex].text;
 
             this.set(properties);
         }
