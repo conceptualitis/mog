@@ -60,8 +60,6 @@
 
             var mog = this;
 
-            var things = document.querySelectorAll("[data-mog-model-" + mog.model + "]");
-
             var inputs = document.querySelectorAll("*[data-mog-input^='" + mog.model + "']");
             var outputs = document.querySelectorAll("*[data-mog-output^='" + mog.model + "']");
             var length = inputs.length;
@@ -72,22 +70,17 @@
                 property = mog.getProperty(inputs[length].getAttribute("data-mog-input"));
 
                 mog.inputs[property] = mog.inputs[property] || [];
-                mog.inputs[property].push(inputs[length]);
-
-                // need to filter what data is absorbed here in the event of an unchecked checkbox
-                // to-do: probably best to use pull() here for this shit
-                if("checkbox" === inputs[length].type) {
-                    mog.data[property] = (inputs[length].checked) ? inputs[length].value : null;
-                } else {
-                    mog.data[property] = inputs[length].value;
-                }
+                mog.inputs[property].push({
+                    el: inputs[length],
+                    type: inputs[length].type
+                });
 
                 // attach appropriate listeners
-                if ("select" === inputs[length].nodeName.toLowerCase()) {
+                if ("select-one" === inputs[length].type) {
                     inputs[length].addEventListener("change", mog.selectChange.bind(this, inputs[length]));
                 } else if ("radio" === inputs[length].type || "checkbox" === inputs[length].type) {
                     inputs[length].addEventListener("change", mog.inputChange.bind(this, inputs[length]));
-                }else {
+                } else {
                     inputs[length].addEventListener("keyup", mog.inputChange.bind(this, inputs[length]));
                 }
             }
@@ -100,13 +93,14 @@
                 mog.outputs[property] = mog.outputs[property] || [];
                 mog.outputs[property].push(outputs[length]);
             }
+
+            mog.pull();
         },
 
         get: function (property) {
             console.log("Mog: " + this.model + ".get");
 
             if (undefined !== property) {
-                console.log(property);
                 console.log(this.data);
                 return this.data[property];
             }
@@ -133,35 +127,39 @@
                 }
 
                 // trigger the hook for more complex interactions
-                console.log("mog.set." + this.model + "." + property);
                 this.trigger("mog.set." + this.model + "." + property);
             });
         },
 
+        // pulls data from the inputs into mog
         pull: function () {
-            console.log("Mog.pull");
+            this.iterate(this.inputs, function (inputs, property) {
+                this.data[property] = null;
 
-            var properties = {};
-
-            this.iterate(this.inputs, function (inputs, element) {
-                properties[element] = inputs[element].value;
+                inputs[property].forEach(function (input) {
+                    if ((input.type === "radio" || input.type === "checkbox") && !input.el.checked) {
+                        return;
+                    }
+                    this.data[property] = input.el.value;
+                }, this);
             });
-
-            this.set(properties);
         },
 
+        // pushes data from mog to the inputs
         push: function () {
-            console.log("Mog.push");
-
-            var properties = {};
-
-            for (var element in this.inputs) {
-                if (this.inputs.hasOwnProperty(element)) {
-                    properties[element] = this.data[element];
-                }
-            }
-
-            this.set(properties);
+            this.iterate(this.inputs, function (inputs, property) {
+                inputs[property].forEach(function (input, i) {
+                    if (input.type === "checkbox" || input.type === "radio") {
+                        if (this.data[property] === input.el.value) {
+                            input.el.checked = true;
+                        }  else {
+                            input.el.checked = false;
+                        }
+                    } else {
+                        input.el.value = this.data[property];
+                    }
+                }, this);
+            });
         },
 
         inputChange: function (el) {
@@ -178,6 +176,7 @@
         
         selectChange: function (el) {
             var properties = {};
+
             properties[this.getProperty(el.getAttribute("data-mog-input"))] = el[el.selectedIndex].text;
 
             this.set(properties);
