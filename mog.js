@@ -56,8 +56,6 @@
         },
 
         sync: function () {
-            console.log("Mog.sync");
-
             var mog = this;
 
             var inputs = document.querySelectorAll("*[data-mog-input^='" + mog.model + "']");
@@ -98,18 +96,13 @@
         },
 
         get: function (property) {
-            console.log("Mog: " + this.model + ".get");
-
             if (undefined !== property) {
-                console.log(this.data);
                 return this.data[property];
             }
             return undefined;
         },
 
         set: function (properties) {
-            console.log("Mog: " + this.model + ".set");
-
             this.iterate(properties, function (properties, property) {
                 this.data[property] = properties[property];
 
@@ -127,7 +120,7 @@
                 }
 
                 // trigger the event for more complex interactions
-                this.trigger("mog.set." + this.model + "." + property);
+                this.trigger(this.model + ".set." + property);
             });
         },
 
