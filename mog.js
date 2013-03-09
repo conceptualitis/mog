@@ -74,12 +74,10 @@
                 });
 
                 // attach appropriate listeners
-                if ("select-one" === inputs[length].type) {
-                    inputs[length].addEventListener("change", mog.change.bind(this, inputs[length]));
-                } else if ("radio" === inputs[length].type || "checkbox" === inputs[length].type) {
-                    inputs[length].addEventListener("change", mog.change.bind(this, inputs[length]));
+                if ("select-one" === inputs[length].type || "radio" === inputs[length].type || "checkbox" === inputs[length].type) {
+                    inputs[length].addEventListener("change", mog.change.bind(this, inputs[length], property));
                 } else {
-                    inputs[length].addEventListener("keyup", mog.change.bind(this, inputs[length]));
+                    inputs[length].addEventListener("keyup", mog.change.bind(this, inputs[length], property));
                 }
             }
 
@@ -155,14 +153,12 @@
             });
         },
 
-        change: function (el) {
+        change: function (el, property) {
             var properties = {};
-            var property = this.getProperty(el.getAttribute("data-mog-input"));
-            var type = el.type;
 
-            if (type === "checkbox" && !el.checked) {
+            if (el.type === "checkbox" && !el.checked) {
                 properties[property] = null;
-            } else if (type === "select-one") {
+            } else if (el.type === "select-one") {
                 properties[property] = el[el.selectedIndex].text;
             } else {
                 properties[property] = el.value;
