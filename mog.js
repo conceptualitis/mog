@@ -75,11 +75,11 @@
 
                 // attach appropriate listeners
                 if ("select-one" === inputs[length].type) {
-                    inputs[length].addEventListener("change", mog.selectChange.bind(this, inputs[length]));
+                    inputs[length].addEventListener("change", mog.change.bind(this, inputs[length]));
                 } else if ("radio" === inputs[length].type || "checkbox" === inputs[length].type) {
-                    inputs[length].addEventListener("change", mog.inputChange.bind(this, inputs[length]));
+                    inputs[length].addEventListener("change", mog.change.bind(this, inputs[length]));
                 } else {
-                    inputs[length].addEventListener("keyup", mog.inputChange.bind(this, inputs[length]));
+                    inputs[length].addEventListener("keyup", mog.change.bind(this, inputs[length]));
                 }
             }
 
@@ -155,22 +155,18 @@
             });
         },
 
-        inputChange: function (el) {
+        change: function (el) {
             var properties = {};
+            var property = this.getProperty(el.getAttribute("data-mog-input"));
+            var type = el.type;
 
-            if (el.type === "checkbox" && !el.checked) {
-                properties[this.getProperty(el.getAttribute("data-mog-input"))] = null;
+            if (type === "checkbox" && !el.checked) {
+                properties[property] = null;
+            } else if (type === "select-one") {
+                properties[property] = el[el.selectedIndex].text;
             } else {
-                properties[this.getProperty(el.getAttribute("data-mog-input"))] = el.value;
+                properties[property] = el.value;
             }
-
-            this.set(properties);
-        },
-        
-        selectChange: function (el) {
-            var properties = {};
-
-            properties[this.getProperty(el.getAttribute("data-mog-input"))] = el[el.selectedIndex].text;
 
             this.set(properties);
         }
