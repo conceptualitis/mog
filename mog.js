@@ -33,16 +33,16 @@
             return combo.slice(combo.indexOf("[") + 1, -1);
         },
 
-        on: function (event, callBack) {
-            var mog = this;
+        on: function (eventBlob, callBack) {
+            var events = eventBlob.split(",");
 
-            if (mog.pipeline[event] === undefined) {
-                mog.pipeline[event] = [];
-            }
+            events.forEach(function (untrimmedEvent) {
+                var trimmedEvent = untrimmedEvent.trim();
+                this.pipeline[trimmedEvent] = this.pipeline[trimmedEvent] || [];
+                this.pipeline[trimmedEvent].push(callBack);
+            }, this);
 
-            mog.pipeline[event].push(callBack);
-
-            return mog; // chaining
+            return this; // chaining
         },
 
         trigger: function (event) {
@@ -126,7 +126,7 @@
                     }
                 }
 
-                // trigger the hook for more complex interactions
+                // trigger the event for more complex interactions
                 this.trigger("mog.set." + this.model + "." + property);
             });
         },
