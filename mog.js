@@ -87,7 +87,10 @@
                 property = mog.getProperty(outputs[length].getAttribute("data-mog-output"));
 
                 mog.outputs[property] = mog.outputs[property] || [];
-                mog.outputs[property].push(outputs[length]);
+                mog.outputs[property].push({
+                    el: outputs[length],
+                    type: outputs[length].type
+                });
             }
 
             mog.pull();
@@ -101,25 +104,17 @@
         },
 
         set: function (properties) {
+            var pushProps = [];
+
             this.iterate(properties, function (properties, property) {
                 this.data[property] = properties[property];
-
-                if (this.inputs[property]) {
-                    for (var t = 0; t < this.inputs[property].length; t += 1) {
-                        if ("radio" !== this.inputs[property][t].type && "checkbox" !== this.inputs[property][t].type) {
-                            this.inputs[property][t].value = properties[property];
-                        }
-                    }
-                }
-                if (this.outputs[property]) {
-                    for (var i = 0; i < this.outputs[property].length; i += 1) {
-                        this.outputs[property][i].innerHTML = properties[property];
-                    }
-                }
+                pushProps.push(property);
 
                 // trigger the event for more complex interactions
                 this.trigger(this.model + ".set." + property);
             });
+
+            this.push(pushProps);
         },
 
         // pulls data from the inputs into mog
@@ -136,21 +131,45 @@
             });
         },
 
-        // pushes data from mog to the inputs
-        push: function () {
-            this.iterate(this.inputs, function (inputs, property) {
-                inputs[property].forEach(function (input, i) {
-                    if (input.type === "checkbox" || input.type === "radio") {
-                        if (this.data[property] === input.el.value) {
-                            input.el.checked = true;
-                        }  else {
-                            input.el.checked = false;
-                        }
-                    } else {
-                        input.el.value = this.data[property];
+        pushInputs: function (property) {
+            this.inputs[property].forEach(function (input, i) {
+                if (input.type === "checkbox" || input.type === "radio") {
+                    if (this.data[property] === input.el.value) {
+                        input.el.checked = true;
+                    }  else {
+                        input.el.checked = false;
+                    }
+                } else {
+                    input.el.value = this.data[property];
+                }
+            }, this);
+        },
+
+        pushOutputs: function (property) {
+            this.outputs[property].forEach(function (output, i) {
+                output.el.innerHTML = this.data[property];
+            }, this);
+        },
+
+        // pushes data from mog to the inputs / outputs
+        push: function (pushProps) {
+            if (pushProps !== undefined) {
+                pushProps.forEach(function (property) {
+                    if (this.inputs[property] !== undefined) {
+                        this.pushInputs(property);
+                    }
+                    if (this.outputs[property] !== undefined) {
+                        this.pushOutputs(property);
                     }
                 }, this);
-            });
+            } else {
+                this.iterate(this.inputs, function (inputs, property) {
+                    this.pushInputs(property);
+                });
+                this.iterate(this.outputs, function (outputs, property) {
+                    this.pushOutputs(property);
+                });
+            }
         },
 
         change: function (el, property) {
