@@ -13,6 +13,8 @@ It's intended for people holding these two notions (or something similar?):
 
 That you? Great.
 
+(For a working exampe: [http://conceptualitis.github.com/mog/](http://conceptualitis.github.com/mog/))
+
 ## A bit more explanation
 
 Say your app is full of little things like this:
