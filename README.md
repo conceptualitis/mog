@@ -95,16 +95,27 @@ Let's make the name show up in the preview.
 First we'll need to add the approrpiate data attribute flags to get Mog working.
 
 ```html
-    <input type="text" name="invite[name]" value="Bob" data-mog-model-invite="name" data-mog-model-role="input">
+    <input type="text" name="invite[name]" value="Bob" data-mog-input="invite[name]">
     ...
-    <h1><span data-mog-model-invite="name" data-mog-model-role="output">Bob</span> invites you!</h1>
+    <h1><span data-mog-output="invite[name]">Bob</span> invites you!</h1>
 ```
 
 Then wherever you do your JavaScript:
 
 ```javascript
-var invite = new Mog("invite");
-invite.sync();
+var InviteMog = Mog.extend({
+    initialize: function () {
+        this.sync();
+    }
+})
+var invite = new InviteMog("invite");
+
+/*
+    aside: you could easily do
+    var invite = new Mog("invite");
+    but I think using extend will get you
+    to a better place in the end.
+*/
 ```
 
 And you're done. Changes made to the name input will automatically show up in the ```<h1>```.
@@ -124,14 +135,14 @@ So the first example was really easy. The next one will hopefully show you where
 Let's increment the number of spaces left at this party/dinner/whatever.
 
 ```html
-    <input type="hidden" name="invite[invites]" value="12" data-mog-model-invite="invites" data-mog-model-role="input">
+    <input type="hidden" name="invite[invites]" value="12" data-mog-input="invite[invites]">
     
     How many people are coming:
-    <input type="text" name="invite[invitee_count]" data-mog-model-invite="invitees" data-mog-model-role="input">
+    <input type="text" name="invite[invitee_count]" data-mog-input="invite[invitee_count]">
 ...
     <p>
         You have
-        <span data-mog-model-invite="seats" data-mog-model-role="output">12</span>
+        <span data-mog-output="invite[seats]">12</span>
         spaces left.
     </p>
 ```
@@ -142,7 +153,7 @@ Let's wire it up!
 
 ```javascript
 // we listen for invitees to change on the Mog model
-invite.on("mog.set.invite.invitees", function () {
+invite.on("invite.set.invitees", function () {
     // we get the number of people invited
     var invitees = parseInt(this.get("invitees"), 10);
     var invites = parseInt(this.get("invites"), 10);
@@ -180,14 +191,14 @@ Now for the last example, dates.
 
 ```html
     When is this event:
-    <select name="invite[month]" data-mog-model-invite="month" data-mog-model-role="input">
+    <select name="invite[month]" data-mog-input="invite[month]">
         <option>Jan</option>
         <option>Feb</option>
         <option>Mar</option>
         <option>etc...</option>
     </select>
     
-    <select name="invite[day]" data-mog-model-invite="day" data-mog-model-role="input">
+    <select name="invite[day]" data-mog-input="invite[day]">
         <option>1</option>
         <option>2</option>
         <option>3</option>
@@ -195,7 +206,7 @@ Now for the last example, dates.
     </select>
 ...
     <p>
-        Happening on <span data-mog-model-invite="date" data-mog-model-role="output">Jan 1</span>
+        Happening on <span data-mog-output="invite[date]">Jan 1</span>
     </p>
 ```
 
@@ -206,8 +217,8 @@ var dateCallback = function () {
 }
 
 // two listeners, one callback
-invite.on("mog.set.invite.month", dateCallback)
-      .on("mog.set.invite.day", dateCallback);
+invite.on("invite.set.month", dateCallback)
+      .on("invite.set.day", dateCallback);
 ```
 
 Anyway that's it for 0.1.0 documentation. More to come.

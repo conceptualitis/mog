@@ -18,17 +18,12 @@
         this.outputs = {};
         this.data = {};
         this.pipeline = {};
+        this.initialize.apply(this);
     };
 
     Mog.prototype = {
-        iterate: function (list, fn) {
-            for (var item in list) {
-                if (list.hasOwnProperty(item)) {
-                    fn.call(this, list, item);
-                }
-            }
-        },
-
+        initialize: function () {},
+        
         getProperty: function (combo) {
             return combo.slice(combo.indexOf("[") + 1, -1);
         },
@@ -186,6 +181,36 @@
             this.set(properties);
         }
     };
+
+    var extend = function (properties) {
+        var parent = this;
+
+        var child = function (modelName) {
+            parent.call(this, modelName);
+        };
+
+        child.prototype = Object.create(parent.prototype);
+
+        parent.iterate(properties, function (properties, property) {
+            child.prototype[property] = properties[property];
+        });
+
+        child.extend = parent.extend;
+        child.iterate = parent.iterate;
+
+        return child;
+    };
+
+    var iterate = function (list, fn) {
+        for (var item in list) {
+            if (list.hasOwnProperty(item)) {
+                fn.call(this, list, item);
+            }
+        }
+    };
+
+    Mog.iterate = Mog.prototype.iterate = iterate;
+    Mog.extend = extend;
 
     window.Mog = Mog;
 
