@@ -125,7 +125,7 @@
                     }  else {
                         input.el.checked = false;
                     }
-                } else {
+                } else if (input.el !== document.activeElement) {
                     input.el.value = this.data[property];
                 }
             }, this );
