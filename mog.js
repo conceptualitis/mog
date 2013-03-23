@@ -25,8 +25,8 @@
             return combo.slice( combo.indexOf( "[" ) + 1, -1 );
         },
 
-        on: function( eventBlob, callBack ) {
-            var events = eventBlob.split( "," );
+        on: function( eventList, callBack ) {
+            var events = eventList.split( "," );
 
             events.forEach( function( untrimmedEvent ) {
                 var trimmedEvent = untrimmedEvent.trim();
@@ -38,54 +38,51 @@
         },
 
         trigger: function( event ) {
-            var mog = this;
-            var i = 0;
-            if ( mog.pipeline[event] && (i = mog.pipeline[event].length) ) {
+            var i;
+            if ( this.pipeline[event] && (i = this.pipeline[event].length) ) {
                 while ( i-- ) {
-                    mog.pipeline[event][i].call( mog );
+                    this.pipeline[event][i].call( this );
                 }
             }
         },
 
         sync: function () {
-            var mog = this;
-
-            var inputs = document.querySelectorAll( "*[data-mog-input^='" + mog.model + "']" );
-            var outputs = document.querySelectorAll( "*[data-mog-output^='" + mog.model + "']" );
-            var length = inputs.length;
-            var property = "";
+            var inputs = document.querySelectorAll( "*[data-mog-input^='" + this.model + "']" ),
+                outputs = document.querySelectorAll( "*[data-mog-output^='" + this.model + "']" ),
+                length = inputs.length,
+                property = "";
 
             // inputs
             while ( length-- ) {
-                property = mog.getProperty(inputs[length].getAttribute("data-mog-input"));
+                property = this.getProperty( inputs[length].getAttribute( "data-mog-input" ) );
 
-                mog.inputs[property] = mog.inputs[property] || [];
-                mog.inputs[property].push({
+                this.inputs[property] = this.inputs[property] || [];
+                this.inputs[property].push({
                     el: inputs[length],
                     type: inputs[length].type
                 });
 
                 // attach appropriate listeners
                 if ( inputs[length].type === "select-one"  || inputs[length].type === "radio" ||  inputs[length].type === "checkbox" ) {
-                    inputs[length].addEventListener( "change", mog.change.bind( this, inputs[length], property ) );
+                    inputs[length].addEventListener( "change", this.change.bind( this, inputs[length], property ) );
                 } else {
-                    inputs[length].addEventListener( "keyup", mog.change.bind( this, inputs[length], property ) );
+                    inputs[length].addEventListener( "keyup", this.change.bind( this, inputs[length], property ) );
                 }
             }
 
             length = outputs.length;
 
             while ( length-- ) {
-                property = mog.getProperty( outputs[length].getAttribute( "data-mog-output" ) );
+                property = this.getProperty( outputs[length].getAttribute( "data-mog-output" ) );
 
-                mog.outputs[property] = mog.outputs[property] || [];
-                mog.outputs[property].push({
+                this.outputs[property] = this.outputs[property] || [];
+                this.outputs[property].push({
                     el: outputs[length],
                     type: outputs[length].type
                 });
             }
 
-            mog.pull();
+            this.pull();
         },
 
         get: function( property ) {
