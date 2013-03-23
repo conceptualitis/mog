@@ -21,6 +21,20 @@
     Mog.prototype = {
         initialize: function () {},
 
+        getInfo: function( el ) {
+            var attribute,
+                role;
+
+            role = el.getAttribute( "data-mog-input" ) ? "input" : "output";
+            attribute = el.getAttribute( "data-mog-" + role );
+
+            return {
+                role: role,
+                group: role + "s",
+                property: attribute.slice( attribute.indexOf( "[" ) + 1, -1 )
+            };
+        },
+
         getProperty: function( combo ) {
             return combo.slice( combo.indexOf( "[" ) + 1, -1 );
         },
@@ -46,41 +60,33 @@
             }
         },
 
+        addElement: function( role, el, property ) {
+            this[role][property] = this[role][property] || [];
+            this[role][property].push({
+                el: el,
+                type: el.type,
+                checkable: ( el.type === "radio" || el.type === "checkbox" ) ? true : false
+            });
+        },
+
         sync: function () {
-            var inputs = document.querySelectorAll( "*[data-mog-input^='" + this.model + "']" ),
-                outputs = document.querySelectorAll( "*[data-mog-output^='" + this.model + "']" ),
-                length = inputs.length,
-                property = "";
+            var all = document.querySelectorAll( "*[data-mog-input^='" + this.model + "'], *[data-mog-output^='" + this.model + "']" ),
+                i = all.length,
+                info;
 
-            // inputs
-            while ( length-- ) {
-                property = this.getProperty( inputs[length].getAttribute( "data-mog-input" ) );
+            while ( i-- ) {
+                info = this.getInfo( all[i] );
 
-                this.inputs[property] = this.inputs[property] || [];
-                this.inputs[property].push({
-                    el: inputs[length],
-                    type: inputs[length].type,
-                    checkable: ( inputs[length].type === "radio" ||  inputs[length].type === "checkbox" ) ? true : false
-                });
+                this.addElement( info.group, all[i], info.property);
 
-                // attach appropriate listeners
-                if ( inputs[length].type === "select-one" || inputs[length].type === "radio" ||  inputs[length].type === "checkbox" ) {
-                    inputs[length].addEventListener( "change", this.change.bind( this, inputs[length], property ) );
-                } else {
-                    inputs[length].addEventListener( "keyup", this.change.bind( this, inputs[length], property ) );
+                if ( info.role === "input" ) {
+                    // attach appropriate listeners
+                    if ( all[i].type === "select-one" || all[i].type === "radio" ||  all[i].type === "checkbox" ) {
+                        all[i].addEventListener( "change", this.change.bind( this, all[i], info.property ) );
+                    } else {
+                        all[i].addEventListener( "keyup", this.change.bind( this, all[i], info.property ) );
+                    }
                 }
-            }
-
-            length = outputs.length;
-
-            while ( length-- ) {
-                property = this.getProperty( outputs[length].getAttribute( "data-mog-output" ) );
-
-                this.outputs[property] = this.outputs[property] || [];
-                this.outputs[property].push({
-                    el: outputs[length],
-                    type: outputs[length].type
-                });
             }
 
             this.pull();
