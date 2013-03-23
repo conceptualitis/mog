@@ -104,9 +104,12 @@ Then wherever you do your JavaScript:
 
 ```javascript
 var invite = new Mog("invite");
+invite.sync();
 ```
 
-And you're done. Changes made to the name input will automatically show up in the ```<h1>```
+And you're done. Changes made to the name input will automatically show up in the ```<h1>```.
+
+Why do I have to call ```sync()```? I feel it's best for the developer to tell mog when to sync once you're constructing any kind of inheritance.
 
 ## The basics
 
