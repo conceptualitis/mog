@@ -59,11 +59,12 @@
                 this.inputs[property] = this.inputs[property] || [];
                 this.inputs[property].push({
                     el: inputs[length],
-                    type: inputs[length].type
+                    type: inputs[length].type,
+                    checkable: ( inputs[length].type === "radio" ||  inputs[length].type === "checkbox" ) ? true : false
                 });
 
                 // attach appropriate listeners
-                if ( inputs[length].type === "select-one"  || inputs[length].type === "radio" ||  inputs[length].type === "checkbox" ) {
+                if ( inputs[length].type === "select-one" || inputs[length].type === "radio" ||  inputs[length].type === "checkbox" ) {
                     inputs[length].addEventListener( "change", this.change.bind( this, inputs[length], property ) );
                 } else {
                     inputs[length].addEventListener( "keyup", this.change.bind( this, inputs[length], property ) );
@@ -109,7 +110,7 @@
                 this.data[property] = null;
 
                 inputs[property].forEach(function( input ) {
-                    if ( (input.type === "radio" || input.type === "checkbox") && !input.el.checked ) {
+                    if ( input.checkable && !input.el.checked ) {
                         return;
                     }
                     this.data[property] = input.el.value;
@@ -119,7 +120,7 @@
 
         pushInputs: function( property ) {
             this.inputs[property].forEach(function( input, i ) {
-                if ( input.type === "checkbox" || input.type === "radio" ) {
+                if ( input.checkable ) {
                     if ( this.data[property] === input.el.value ) {
                         input.el.checked = true;
                     }  else {
