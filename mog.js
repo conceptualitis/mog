@@ -23,7 +23,7 @@
 
     Mog.prototype = {
         initialize: function () {},
-        
+
         getProperty: function (combo) {
             return combo.slice(combo.indexOf("[") + 1, -1);
         },
@@ -92,10 +92,7 @@
         },
 
         get: function (property) {
-            if (undefined !== property) {
-                return this.data[property];
-            }
-            return undefined;
+            return this.data[property];
         },
 
         set: function (properties) {
