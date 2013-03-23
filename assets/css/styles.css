@@ -1,0 +1,75 @@
+body, html, h1, p, ul, li {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+body {
+    background-color: #666;
+    font-size: 100%;
+    font-family: "Helvetica Neue", Helvetica, Arial, serif;
+    -webkit-font-smoothing: antialiased;
+    color: #fff;
+}
+
+.wrapper {
+    width: 95%;
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.panel {
+    position: relative;
+    width: 50%;
+    padding: 3em 0;
+    float: left;
+}
+
+input[type='text'] {
+    width: 75%;
+    padding: .5em;
+    border: 0;
+    border-radius: .25em;
+    font-family: "Helvetica Neue", Helvetica, Arial, serif;
+    font-size: 1em;
+}
+
+textarea {
+    width: 75%;
+    height: 5.5em;
+    padding: .5em;
+    border: 0;
+    border-radius: .25em;
+    font-family: "Helvetica Neue", Helvetica, Arial, serif;
+    font-size: 1em;   
+}
+
+.card {
+    padding: 1em;
+    box-shadow: 0 5px 10px #333;
+    background-color: #f0f0f0;
+    font-family: Georgia, "Times New Roman", serif;
+    text-align: center;
+    text-shadow: 0 1px 0 #fff;
+    color: #333;
+}
+
+.card p {
+    padding-bottom: .5em;
+}
+
+.card li {
+    padding-bottom: .3em
+}
+
+.card h1 {
+    padding-bottom: .25em;
+    font-size: 2.5em;
+    font-style: italic;
+    font-weight: 500;
+}
+
+.description {
+    border-top: 1px solid #dadada;
+    padding-top: .25em;
+}

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mog - Markup Object Generator</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" type="text/css" href="assets/css/styles.css">
+</head>
+<body>
+    <div class="wrapper">
+        <form class="panel">
+            <label>
+                Host name:
+                <br>
+                <input type="text" data-mog-input="invite[name]" value="Bob">
+            </label>
+
+            <br><br>
+
+            <label>
+                Event title:
+                <br>
+                <input type="text" data-mog-input="invite[title]" value="The Party">
+            </label>
+
+            <br><br>
+
+            Day and time:
+            <br>
+            <select data-mog-input="invite[month]">
+                <option>Mar</option>
+                <option>Apr</option>
+                <option>May</option>
+                <option>Jun</option>
+            </select>
+            <select data-mog-input="invite[day]">
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+            </select>
+            <select data-mog-input="invite[time]">
+                <option>7:00 PM</option>
+                <option>7:30 PM</option>
+                <option>8:00 PM</option>
+                <option>8:30 PM</option>
+            </select>
+
+            <br><br>
+
+            Attire:
+            <br>
+            <label>
+                <input type="radio" name="color" value="casual" data-mog-input="invite[attire]" checked> Casual
+            </label>
+            <br>
+            <label>
+                <input type="radio" name="color" value="formal" data-mog-input="invite[attire]"> Formal
+            </label>
+
+            <br><br>
+
+            Foods:
+            <br>
+            <label>
+                <input type="checkbox" value="bagels" data-mog-input="invite[bagels]"> Bagels
+            </label>
+            <br>
+            <label>
+                <input type="checkbox" value="sammiches" data-mog-input="invite[sammiches]"> Sammiches
+            </label>
+            <br>
+            <label>
+                <input type="checkbox" value="grapes" data-mog-input="invite[grapes]"> Grapes
+            </label>
+
+            <br><br>
+
+            <textarea placeholder="Event description" data-mog-input="invite[description]"></textarea>
+        </form>
+
+        <div class="panel">
+            <div class="card">
+                <p>
+                    <span data-mog-output="invite[name]">Bob</span> invites you to:
+                </p>
+                <h1 data-mog-output="invite[title]">
+                    The Party
+                </h1>
+                <p data-mog-output="invite[combinedtime]">
+                    on Mar 5 at 7:00 PM
+                </p>
+                <p>
+                    Attire is <span data-mog-output="invite[attire]">casual</span>
+                </p>
+                <div data-mog-output="invite[combinedfood]">
+                    <p>No foods yet.</p>
+                </div>
+                <p class="description" data-mog-output="invite[description]">
+                    
+                </p>
+            </div>
+        </div>
+    </div>
+
+<script type="text/javascript" src="assets/js/mog.js"></script>
+<script>
+    var Invite = Mog.extend({
+        foodChange: function () {
+            var blurb = "<p>We'll be eating:</p> <ul>",
+                list = "";
+
+            if (this.get("bagels")) {
+                list += "<li>" + this.get("bagels") + "</li>";
+            }
+            if (this.get("sammiches")) {
+                list += "<li>" + this.get("sammiches") + "</li>";
+            }
+            if (this.get("grapes")) {
+                list += "<li>" + this.get("grapes") + "</li>";
+            }
+
+
+            if (list) {
+                blurb += list + "</ul>";
+            } else {
+                blurb = "<p>No foods yet.</p>";
+            }
+
+            this.set({"combinedfood": blurb});
+        },
+
+        timeChange: function () {
+            this.set({
+                "combinedtime": "on " + this.get("month") + " " + this.get("day") + " at " + this.get("time")
+            });
+        },
+
+        bindListeners: function () {
+            this.on("invite.set.bagels, invite.set.sammiches, invite.set.grapes", this.foodChange)
+                .on("invite.set.month, invite.set.day, invite.set.time", this.timeChange);
+        },
+
+        initialize: function () {
+            this.bindListeners();
+            this.sync();
+        }
+    });
+
+    var card = new Invite("invite");
+</script>
+
+</body>
+</html>
