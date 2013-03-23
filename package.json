@@ -1,0 +1,22 @@
+{
+  "name": "mog",
+  "version": "0.1.0",
+  "description": "Markup Object Generator - generate powerful, event-emitting objects from your app's HTML",
+  "main": "mog.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/conceptualitis/mog.git"
+  },
+  "keywords": [
+    "model",
+    "structure",
+    "client",
+    "browser"
+  ],
+  "author": "Neil Duffy",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "devDependencies": {
+    "grunt": "~0.4.1"
+  }
+}
