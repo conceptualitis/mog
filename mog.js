@@ -123,7 +123,7 @@
         pushInputs: function( property ) {
             this.inputs[property].forEach(function( input, i ) {
                 if ( input.checkable ) {
-                    if ( this.data[property] === input.el.value ) {
+                    if ( this.data[property] === input.el.value || (input.type === "checkbox" && this.data[property] === true) ) {
                         input.el.checked = true;
                     }  else {
                         input.el.checked = false;
