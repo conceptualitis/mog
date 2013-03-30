@@ -35,10 +35,6 @@
             };
         },
 
-        getProperty: function( combo ) {
-            return combo.slice( combo.indexOf( "[" ) + 1, -1 );
-        },
-
         on: function( eventList, callBack ) {
             var events = eventList.split( "," );
 
@@ -81,7 +77,7 @@
 
                 if ( info.role === "input" ) {
                     // attach appropriate listeners
-                    if ( all[i].type === "select-one" || all[i].type === "radio" ||  all[i].type === "checkbox" ) {
+                    if ( all[i].type === "select-multiple" || all[i].type === "select-one" || all[i].type === "radio" ||  all[i].type === "checkbox" ) {
                         all[i].addEventListener( "change", this.change.bind( this, all[i], info.property ) );
                     } else {
                         all[i].addEventListener( "keyup", this.change.bind( this, all[i], info.property ) );
@@ -166,12 +162,22 @@
         },
 
         change: function( el, property ) {
-            var properties = {};
+            var properties = {},
+                length = 0,
+                collection = [];
 
             if ( el.type === "checkbox" && !el.checked ) {
                 properties[property] = null;
             } else if ( el.type === "select-one" ) {
                 properties[property] = el[el.selectedIndex].text;
+            } else if ( el.type === "select-multiple" ) {
+                length = el.selectedOptions.length;
+
+                while ( length-- ) {
+                    collection.push( el.selectedOptions[length].text );
+                }
+
+                properties[property] = collection.join(", ");
             } else {
                 properties[property] = el.value;
             }
