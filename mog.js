@@ -51,14 +51,14 @@
                 attribute,
                 property;
 
-            this[role + "s"] = this[role + "s"] || {};
+            this[role] = this[role] || {};
 
             while (x--) {
                 attribute = elements[x].getAttribute("data-mog-" + role);
                 property = attribute.slice( attribute.indexOf( "[" ) + 1, -1 );
 
-                this[role + "s"][property] = this[role + "s"][property] || [];
-                this[role + "s"][property].push({
+                this[role][property] = this[role][property] || [];
+                this[role][property].push({
                     el: elements[x],
                     role: role,
                     property: property,
@@ -96,7 +96,7 @@
 
         // pulls data from the inputs into mog
         pull: function () {
-            this.iterate( this.inputs, function( inputs, property ) {
+            this.iterate( this.input, function( inputs, property ) {
                 this.data[property] = null;
 
                 inputs[property].forEach(function( input ) {
@@ -138,11 +138,11 @@
         push: function( property ) {
             this.roles.forEach( function ( role ) {
                 if ( property === undefined ) {
-                    this.iterate( this[role + "s"], function( elements, property ) {
-                        this.disseminate(this[role + "s"][property]);
+                    this.iterate( this[role], function( elements, property ) {
+                        this.disseminate(this[role][property]);
                     });
-                } else if ( this[role + "s"][property] ) {
-                    this.disseminate(this[role + "s"][property]);
+                } else if ( this[role][property] ) {
+                    this.disseminate(this[role][property]);
                 }
             }, this );
         },
