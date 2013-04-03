@@ -313,11 +313,127 @@ var demo = new Demo("demo");
         </div>
     </div>
 
+    <div class="box">
+        <div class="wrapper cf">
+            <h2>Let's get more complex</h2>
+            
+            <div class="half">
+                <p>
+                    Since Mog emits events like a fat kid loves cake, we easily create more
+                    interactions.
+                </p>
+            </div>
+
+            <div class="half clear">
+                <h3>Input</h3>
+
+                <p>
+                    When are you available?
+                </p>
+
+                <p>
+                    <input data-mog-input="demo[days-weekends]" type="checkbox" value="Weekends"> Weekends
+                    <input data-mog-input="demo[days-weekdays]" type="checkbox" value="Weekdays"> Weekdays
+                </p>
+
+                <p>
+                    <input data-mog-input="demo[days-sunday]" type="checkbox" value="Sunday"> Su
+                    &nbsp;
+                    <input data-mog-input="demo[days-monday]" type="checkbox" value="Monday"> Mo
+                    &nbsp;
+                    <input data-mog-input="demo[days-tuesday]" type="checkbox" value="Tuesday"> Tu
+                    &nbsp;
+                    <input data-mog-input="demo[days-wednesday]" type="checkbox" value="Wednesday"> We
+                    &nbsp;
+                    <input data-mog-input="demo[days-thursday]" type="checkbox" value="Thursday"> Th
+                    &nbsp;
+                    <input data-mog-input="demo[days-friday]" type="checkbox" value="Friday"> Fr
+                    &nbsp;
+                    <input data-mog-input="demo[days-saturday]" type="checkbox" value="Saturday"> Sa
+                </p>
+            </div>
+
+            <div class="half">
+                <h3>Output</h3>
+                <span data-mog-output="demo[computers]">No</span>
+            </div>
+
+            <div class="half clear">
+                <h3>HTML</h3>
+<code class="code-block">
+<pre>
+&lt;input data-mog-input="demo[computers]" type="radio" name="computers" value="Yes"> Yes
+&lt;input data-mog-input="demo[computers]" type="radio" name="computers" checked value="No"> No
+
+<em>&hellip;</em>
+
+&lt;span data-mog-output="demo[computers]">No&lt;/span>
+</pre>
+                </code>
+            </div>
+        </div>
+    </div>
+
 
 <script type="text/javascript" src="mog.js"></script>
 <script>
     var Demo = Mog.extend({
+        // starting to flesh out what a collection might be here
+
+        // an object with a string value, collection.test
+
+        // an object with a boolean vlaue, collection.checked
+
+        setWeekends: function (value) {
+            var setTo = ( value === "Weekends" || value === true ) ? true : false;
+
+            this.set({
+                "days-saturday": setTo,
+                "days-sunday": setTo
+            }, true );
+        },
+
+        setWeekdays: function (value) {
+            var setTo = ( value === "Weekdays" || value === true ) ? true : false;
+            
+            this.set({
+                "days-monday": setTo,
+                "days-tuesday": setTo,
+                "days-wednesday": setTo,
+                "days-thursday": setTo,
+                "days-friday": setTo
+            }, true);
+        },
+
+        setWeekday: function () {
+            if ( this.get("days-monday") && this.get("days-tuesday") && this.get("days-wednesday") && this.get("days-thursday") && this.get("days-friday") ) {
+                this.set({
+                    "days-weekdays": true
+                }, true );
+            } else {
+                this.set({
+                    "days-weekdays": false
+                }, true );
+            }
+        },
+
+        setWeekend: function () {
+            if ( this.get("days-sunday") && this.get("days-saturday") ) {
+                this.set({
+                    "days-weekends": true
+                }, true );
+            } else {
+                this.set({
+                    "days-weekends": false
+                }, true );
+            }
+        },
+
         initialize: function () {
+            this.on( "set.days-weekends", this.setWeekends.bind(this) )
+                .on( "set.days-weekdays", this.setWeekdays.bind(this) )
+                .on( "set.days-monday, set.days-tuesday, set.days-wednesday, set.days-thursday, set.days-friday", this.setWeekday.bind(this) )
+                .on( "set.days-sunday, set.days-saturday", this.setWeekend.bind(this) );
             this.sync();
         }
     });
