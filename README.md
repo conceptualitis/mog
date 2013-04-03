@@ -155,7 +155,7 @@ Let's wire it up!
 
 ```javascript
 // we listen for invitees to change on the Mog model
-invite.on("invite.set.invitees", function () {
+invite.on("set.invitees", function () {
     // we get the number of people invited
     var invitees = parseInt(this.get("invitees"), 10);
     var invites = parseInt(this.get("invites"), 10);
@@ -219,8 +219,8 @@ var dateCallback = function () {
 }
 
 // two listeners, one callback
-invite.on("invite.set.month", dateCallback)
-      .on("invite.set.day", dateCallback);
+invite.on("set.month", dateCallback)
+      .on("set.day", dateCallback);
 ```
 
 Anyway that's it for 0.1.0 documentation. More to come.
