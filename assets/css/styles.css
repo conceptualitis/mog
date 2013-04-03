@@ -1,0 +1,138 @@
+body, html, h1, h2, h3, p, ul, li, pre {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+body {
+    background-color: #f0f0f0;
+    font-size: 100%;
+    font-family: "Helvetica Neue", Helvetica, Arial, serif;
+    -webkit-font-smoothing: antialiased;
+    color: #333;
+}
+
+h1 {
+    font-size: 3.5em;
+}
+
+h2 {
+    padding: 0 1.5% .5em;
+    font-size: 2em;
+}
+
+h3 {
+    padding: 0 0 .5em;
+    font-size: 1.5em;
+}
+
+p {
+    padding-bottom: .75em;
+    line-height: 1.5em;
+}
+
+input[type='text'] {
+    width: 75%;
+    padding: .5em;
+    border: 0;
+    border-radius: .25em;
+    font-family: "Helvetica Neue", Helvetica, Arial, serif;
+    font-size: 1em;
+    border: 1px solid #bbb;
+}
+
+textarea {
+    width: 75%;
+    height: 5.5em;
+    padding: .5em;
+    border: 0;
+    border-radius: .25em;
+    font-family: "Helvetica Neue", Helvetica, Arial, serif;
+    font-size: 1em;   
+}
+
+.code-block {
+    display: block;
+    padding: 1em;
+    margin-bottom: .75em;
+    border-radius: .3em;
+    border-bottom: 1px solid #fff;
+    background-color: #333;
+    font-size: .9em;
+    color: #fff;
+    overflow: auto;
+}
+
+.cf:before,
+.cf:after {
+    content: " ";
+    display: table;
+}
+.cf:after {
+    clear: both;
+}
+.cf {
+    *zoom: 1;
+}
+
+.half {
+    float: left;
+    width: 47%;
+    padding: 0 1.5% 2em;
+}
+
+.clear {
+    clear: both;
+}
+
+.wrapper {
+    width: 95%;
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.box {
+    padding: 2em 0;
+    border-top: 1px solid #fff;
+    border-bottom: 1px solid #bbb;
+}
+.box:nth-child(1) {
+    border-top: 0;
+}
+
+.panel {
+    position: relative;
+    width: 50%;
+    padding: 3em 0;
+    float: left;
+}
+
+.card {
+    padding: 1em;
+    box-shadow: 0 5px 10px #333;
+    background-color: #f0f0f0;
+    font-family: Georgia, "Times New Roman", serif;
+    text-align: center;
+    text-shadow: 0 1px 0 #fff;
+    color: #333;
+}
+
+.card p {
+    padding-bottom: .5em;
+}
+
+.card li {
+    padding-bottom: .3em
+}
+
+.card h1 {
+    padding-bottom: .25em;
+    font-size: 2.5em;
+    font-style: italic;
+    font-weight: 500;
+}
+
+.description {
+    border-top: 1px solid #dadada;
+    padding-top: .25em;
+}

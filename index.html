@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mog - Markup Object Generator</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" type="text/css" href="assets/css/styles.css">
+</head>
+<body>
+    <div class="box">
+        <h1 class="wrapper">Using Mog</h1>
+    </div>
+    
+    <div class="box">
+        <div class="wrapper cf">
+            <h2>Setup</h2>
+            <code class="code-block">
+<pre>
+&lt;script>
+
+var Demo = Mog.extend({
+  initialize: function () {
+    this.sync();
+  }
+});
+
+var demo = new Demo("demo");
+
+&lt;/script>
+</pre>
+            </code>
+
+            <div class="half">
+                <p>
+                    Mog does a lot of things for you while providing a powerful, event-driven
+                    platform to expand upon.
+                </p>
+                <p>
+                    To get started with Mog all we have to do is pass <code>Mog.extend()</code> an
+                    object containing an <code>initialize</code> function. This simply gives Mog some
+                    code to run when you use the <code>new</code> keyword.
+                </p>
+                <p>
+                    When we pass the string <code>"demo"</code> to <code>new Demo()</code> and call
+                    <code>sync()</code> in our <code>initialize</code> function, Mog looks through
+                    your HTML and generates a model.
+                </p>
+                <p>
+                    You'll see how Mog takes <code>"demo"</code> and uses it to generate an object.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="box">
+        <div class="wrapper cf">
+            <h2>Moving one value</h2>
+            
+            <div class="half">
+                <p>
+                    Mog moves input values into HTML.
+                </p>
+            </div>
+
+            <div class="half clear">
+                <h3>Input</h3>
+                <input type="text" data-mog-input="demo[name]" value="Bob">
+            </div>
+
+            <div class="half">
+                <h3>Output</h3>
+                <span data-mog-output="demo[name]">Bob</span>
+            </div>
+
+            <div class="half clear">
+                <h3>HTML</h3>
+                <code class="code-block">
+                    &lt;input type="text" data-mog-input="demo[name]" value="Bob">
+                    <br>
+                    <em>&hellip;</em>
+                    <br>
+                    &lt;span data-mog-output="demo[name]">Bob&lt;/span>  
+                </code>
+            </div>
+
+            <div class="half">
+                <p>
+                    The <code>data-mog-input</code> attribute tells Mog that this HTML element
+                    generates a property value. The first part of the value, <code>demo</code>,
+                    tells Mog to listen to this element when we call <code>sync()</code>.
+                    The second piece, <code>[name]</code>, tells Mog which property the HTML
+                    element is associated with. In this case, Bob.
+                </p>
+                <p>
+                    The <code>data-mog-output</code> behaves basically the same way, but tells Mog
+                    to place values into the element instead of retrieve values from it.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="box">
+        <div class="wrapper cf">
+            <h2>Moving many values</h2>
+            
+            <div class="half">
+                <p>
+                    Mog moves many input values into many HTML elements. Any Mog input has this
+                    ability.
+                </p>
+            </div>
+
+            <div class="half clear">
+                <h3>Input</h3>
+                <input type="text" data-mog-input="demo[name-x]" value="Dave">
+                <br>
+                <input type="text" data-mog-input="demo[name-x]" value="Dave">
+                <br>
+                <input type="text" data-mog-input="demo[name-x]" value="Dave">
+            </div>
+
+            <div class="half">
+                <h3>Output</h3>
+                <strong data-mog-output="demo[name-x]">Dave</strong>
+                <br>
+                <em data-mog-output="demo[name-x]">Dave</em>
+            </div>
+
+            <div class="half clear">
+                <h3>HTML</h3>
+                <code class="code-block">
+                    &lt;input type="text" data-mog-input="demo[name-x]" value="Dave">
+                    &lt;input type="text" data-mog-input="demo[name-x]" value="Dave">
+                    &lt;input type="text" data-mog-input="demo[name-x]" value="Dave">
+                    <br>
+                    <em>&hellip;</em>
+                    <br>
+                    &lt;strong data-mog-output="demo[name-x]">Dave&lt;/strong>
+                    <br>
+                    &lt;em data-mog-output="demo[name-x]">Dave&lt;/em>
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <div class="box">
+        <div class="wrapper cf">
+            <h2>Moving select value</h2>
+            
+            <div class="half">
+                <p>
+                    Mog can move the value of a select.
+                </p>
+            </div>
+
+            <div class="half clear">
+                <h3>Input</h3>
+                <select data-mog-input="demo[food]">
+                    <option value="None">None</option>
+                    <option value="Burger">Burger</option>
+                    <option value="Salad">Salad</option>
+                    <option value="Pizza">Pizza</option>
+                </select>
+            </div>
+
+            <div class="half">
+                <h3>Output</h3>
+                <span data-mog-output="demo[food]">None</span>
+            </div>
+
+            <div class="half clear">
+                <h3>HTML</h3>
+                <code class="code-block">
+<pre>
+&lt;select data-mog-input="demo[food]">
+    &lt;option value="None">None&lt;/option>
+    &lt;option value="Burger">Burger&lt;/option>
+    &lt;option value="Salad">Salad&lt;/option>
+    &lt;option value="Pizza">Pizza&lt;/option>
+&lt;/select>
+
+<em>&hellip;</em>
+
+&lt;span data-mog-output="demo[food]">None&lt;/span>
+</pre>
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <div class="box">
+        <div class="wrapper cf">
+            <h2>Moving multiple select values</h2>
+            
+            <div class="half">
+                <p>
+                    Mog can move the values of a multiple select.
+                </p>
+            </div>
+
+            <div class="half clear">
+                <h3>Input</h3>
+                <select multiple data-mog-input="demo[food-x]">
+                    <option value="Soda">Soda</option>
+                    <option selected value="Water">Water</option>
+                    <option selected value="Tea">Tea</option>
+                    <option value="Coffee">Coffee</option>
+                </select>
+            </div>
+
+            <div class="half">
+                <h3>Output</h3>
+                <span data-mog-output="demo[food-x]">Tea, Water</span>
+            </div>
+
+            <div class="half clear">
+                <h3>HTML</h3>
+<code class="code-block">
+<pre>
+&lt;select multiple data-mog-input="demo[food]">
+    &lt;option value="Soda">Soda&lt;/option>
+    &lt;option value="Water">Water&lt;/option>
+    &lt;option value="Tea">Tea&lt;/option>
+    &lt;option value="Coffee">Coffee&lt;/option>
+&lt;/select>
+
+<em>&hellip;</em>
+
+&lt;span data-mog-output="demo[food]">None&lt;/span>
+</pre>
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <div class="box">
+        <div class="wrapper cf">
+            <h2>Moving checkbox values</h2>
+            
+            <div class="half">
+                <p>
+                    Mog can move the value of a checkbox.
+                </p>
+            </div>
+
+            <div class="half clear">
+                <h3>Input</h3>
+                <input data-mog-input="demo[like-it]" type="checkbox" value="Like it"> Like it
+                <br>
+                <input data-mog-input="demo[love-it]" type="checkbox" checked value="Love it"> Love it
+            </div>
+
+            <div class="half">
+                <h3>Output</h3>
+                <span data-mog-output="demo[like-it]"></span>
+                <br>
+                <span data-mog-output="demo[love-it]">Love it</span>
+            </div>
+
+            <div class="half clear">
+                <h3>HTML</h3>
+<code class="code-block">
+<pre>
+&lt;nput data-mog-input="demo[like-it]" type="checkbox" value="Like it"> Like it
+&lt;input data-mog-input="demo[love-it]" type="checkbox" checked value="Love it"> Love it
+
+<em>&hellip;</em>
+
+&lt;span data-mog-output="demo[like-it]">&lt;/span>
+&lt;span data-mog-output="demo[love-it]">Love it&lt;/span>
+</pre>
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <div class="box">
+        <div class="wrapper cf">
+            <h2>Moving radio values</h2>
+            
+            <div class="half">
+                <p>
+                    Mog can move the value of a radio button group.
+                </p>
+            </div>
+
+            <div class="half clear">
+                <h3>Input</h3>
+                Computers?
+                <br>
+                <input data-mog-input="demo[computers]" type="radio" name="computers" value="Yes"> Yes
+                <br>
+                <input data-mog-input="demo[computers]" type="radio" name="computers" checked value="No"> No
+            </div>
+
+            <div class="half">
+                <h3>Output</h3>
+                <span data-mog-output="demo[computers]">No</span>
+            </div>
+
+            <div class="half clear">
+                <h3>HTML</h3>
+<code class="code-block">
+<pre>
+&lt;input data-mog-input="demo[computers]" type="radio" name="computers" value="Yes"> Yes
+&lt;input data-mog-input="demo[computers]" type="radio" name="computers" checked value="No"> No
+
+<em>&hellip;</em>
+
+&lt;span data-mog-output="demo[computers]">No&lt;/span>
+</pre>
+                </code>
+            </div>
+        </div>
+    </div>
+
+
+<script type="text/javascript" src="mog.js"></script>
+<script>
+    var Demo = Mog.extend({
+        initialize: function () {
+            this.sync();
+        }
+    });
+
+    var demo = new Demo("demo");
+</script>
+
+</body>
+</html>
