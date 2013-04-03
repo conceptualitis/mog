@@ -1,121 +1,106 @@
-/*
-    Mog.js
-    ==============================
+//  Mog.js 0.1.0
+//  ==============================
 
-    Mog - Markup Object Generator
-    A core thing to extend and customize. The basic concept is that
-    it attempts to manage and be a representation of the data
-    contained in html, instead of a database communicating via
-    XHR.
+//  Mog - Markup Object Generator
+//  A core thing to extend and customize. The basic concept is that
+//  it attempts to manage and be a representation of the data
+//  contained in html, instead of a database
 
-*/
-(function (window, document) {
+(function ( window, document ) {
     "use strict";
 
-    var Mog = function (modelName) {
+    var Mog = function( modelName ) {
+        this.roles = [
+            "input",
+            "output",
+            "button"
+        ];
         this.model = modelName;
-        this.inputs = {};
-        this.outputs = {};
         this.data = {};
         this.pipeline = {};
-        this.initialize.apply(this);
+        this.initialize.call( this, arguments );
     };
 
     Mog.prototype = {
         initialize: function () {},
 
-        getProperty: function (combo) {
-            return combo.slice(combo.indexOf("[") + 1, -1);
-        },
+        on: function( eventList, callBack ) {
+            var events = eventList.split( "," );
 
-        on: function (eventBlob, callBack) {
-            var events = eventBlob.split(",");
-
-            events.forEach(function (untrimmedEvent) {
+            events.forEach( function( untrimmedEvent ) {
                 var trimmedEvent = untrimmedEvent.trim();
                 this.pipeline[trimmedEvent] = this.pipeline[trimmedEvent] || [];
                 this.pipeline[trimmedEvent].push(callBack);
-            }, this);
+            }, this );
 
             return this; // chaining
         },
 
-        trigger: function (event) {
-            var mog = this;
-            var i = 0;
-            if (mog.pipeline[event] !== undefined && (i = mog.pipeline[event].length) > 0) {
-                while (i--) {
-                    mog.pipeline[event][i].call(mog);
+        trigger: function( event, value ) {
+            var i;
+            if ( this.pipeline[event] && (i = this.pipeline[event].length) ) {
+                while ( i-- ) {
+                    this.pipeline[event][i].call( this, value );
                 }
+            }
+        },
+
+        consume: function ( role ) {
+            var elements = document.querySelectorAll( "*[data-mog-" + role + "^='" + this.model + "']" ),
+                x = elements.length,
+                attribute,
+                property;
+
+            this[role + "s"] = this[role + "s"] || {};
+
+            while (x--) {
+                attribute = elements[x].getAttribute("data-mog-" + role);
+                property = attribute.slice( attribute.indexOf( "[" ) + 1, -1 );
+
+                this[role + "s"][property] = this[role + "s"][property] || [];
+                this[role + "s"][property].push({
+                    el: elements[x],
+                    role: role,
+                    property: property,
+                    type: elements[x].type,
+                    checkable: ( elements[x].type === "radio" || elements[x].type === "checkbox" ) ? true : false
+                });
+
+                elements[x].addEventListener( "change", this.change.bind( this, elements[x], property ) );
+                elements[x].addEventListener( "keyup", this.change.bind( this, elements[x], property ) );
             }
         },
 
         sync: function () {
-            var mog = this;
-
-            var inputs = document.querySelectorAll("*[data-mog-input^='" + mog.model + "']");
-            var outputs = document.querySelectorAll("*[data-mog-output^='" + mog.model + "']");
-            var length = inputs.length;
-            var property = "";
-
-            // inputs
-            while (length--) {
-                property = mog.getProperty(inputs[length].getAttribute("data-mog-input"));
-
-                mog.inputs[property] = mog.inputs[property] || [];
-                mog.inputs[property].push({
-                    el: inputs[length],
-                    type: inputs[length].type
-                });
-
-                // attach appropriate listeners
-                if ("select-one" === inputs[length].type || "radio" === inputs[length].type || "checkbox" === inputs[length].type) {
-                    inputs[length].addEventListener("change", mog.change.bind(this, inputs[length], property));
-                } else {
-                    inputs[length].addEventListener("keyup", mog.change.bind(this, inputs[length], property));
-                }
-            }
-
-            length = outputs.length;
-
-            while (length--) {
-                property = mog.getProperty(outputs[length].getAttribute("data-mog-output"));
-
-                mog.outputs[property] = mog.outputs[property] || [];
-                mog.outputs[property].push({
-                    el: outputs[length],
-                    type: outputs[length].type
-                });
-            }
-
-            mog.pull();
+            this.roles.forEach( this.consume, this );
+            this.pull();
         },
 
-        get: function (property) {
+        get: function( property ) {
             return this.data[property];
         },
 
-        set: function (properties) {
-            var pushProps = [];
-
-            this.iterate(properties, function (properties, property) {
+        set: function( properties, stopProp ) {
+            this.iterate( properties, function( properties, property ) {
                 this.data[property] = properties[property];
-                pushProps.push(property);
+                this.push(property);
 
+                // unless the event functionality is supressed, we
                 // trigger the event for more complex interactions
-                this.trigger(this.model + ".set." + property);
+                // and pass the new value
+                if ( !stopProp ) {
+                    this.trigger( "set." + property, properties[property] );
+                }
             });
-
-            this.push(pushProps);
         },
 
         // pulls data from the inputs into mog
         pull: function () {
-            this.iterate(this.inputs, function (inputs, property) {
+            this.iterate( this.inputs, function( inputs, property ) {
                 this.data[property] = null;
 
-                inputs[property].forEach(function (input) {
-                    if ((input.type === "radio" || input.type === "checkbox") && !input.el.checked) {
+                inputs[property].forEach(function( input ) {
+                    if ( input.checkable && !input.el.checked ) {
                         return;
                     }
                     this.data[property] = input.el.value;
@@ -123,85 +108,100 @@
             });
         },
 
-        pushInputs: function (property) {
-            this.inputs[property].forEach(function (input, i) {
-                if (input.type === "checkbox" || input.type === "radio") {
-                    if (this.data[property] === input.el.value) {
-                        input.el.checked = true;
-                    }  else {
-                        input.el.checked = false;
-                    }
-                } else {
-                    input.el.value = this.data[property];
-                }
-            }, this);
-        },
+        // takes [role][property] and moves its data[property] into it
+        disseminate: function ( elements ) {
+            elements.forEach(function( element, i ) {
+                switch ( element.role ) {
+                    case "input":
+                        if ( element.checkable ) {
+                            if ( this.data[element.property] === element.el.value || (element.type === "checkbox" && this.data[element.property] === true) ) {
+                                element.el.checked = true;
+                            }  else {
+                                element.el.checked = false;
+                            }
+                        } else if (element.el !== document.activeElement) {
+                            element.el.value = this.data[element.property];
+                        }
+                        break;
 
-        pushOutputs: function (property) {
-            this.outputs[property].forEach(function (output, i) {
-                output.el.innerHTML = this.data[property];
-            }, this);
+                    case "output":
+                        element.el.innerHTML = this.data[element.property];
+                        break;
+
+                    case "button":
+                        break;
+                }
+            }, this );
         },
 
         // pushes data from mog to the inputs / outputs
-        push: function (pushProps) {
-            if (pushProps !== undefined) {
-                pushProps.forEach(function (property) {
-                    if (this.inputs[property] !== undefined) {
-                        this.pushInputs(property);
-                    }
-                    if (this.outputs[property] !== undefined) {
-                        this.pushOutputs(property);
-                    }
-                }, this);
-            } else {
-                this.iterate(this.inputs, function (inputs, property) {
-                    this.pushInputs(property);
-                });
-                this.iterate(this.outputs, function (outputs, property) {
-                    this.pushOutputs(property);
-                });
-            }
+        push: function( property ) {
+            this.roles.forEach( function ( role ) {
+                if ( property === undefined ) {
+                    this.iterate( this[role + "s"], function( elements, property ) {
+                        this.disseminate(this[role + "s"][property]);
+                    });
+                } else if ( this[role + "s"][property] ) {
+                    this.disseminate(this[role + "s"][property]);
+                }
+            }, this );
         },
 
-        change: function (el, property) {
-            var properties = {};
+        getValue: function ( el ) {
+            var length = 0,
+                collection = [];
 
-            if (el.type === "checkbox" && !el.checked) {
-                properties[property] = null;
-            } else if (el.type === "select-one") {
-                properties[property] = el[el.selectedIndex].text;
-            } else {
-                properties[property] = el.value;
+            if ( el.type === "checkbox" && !el.checked ) {
+                return null;
             }
 
-            this.set(properties);
+            if ( el.type === "select-one" ) {
+                return el[el.selectedIndex].text;
+            }
+
+            if ( el.type === "select-multiple" ) {
+                length = el.selectedOptions.length;
+
+                while ( length-- ) {
+                    collection.push( el.selectedOptions[length].text );
+                }
+
+                return collection.join(", ");
+            }
+
+            return el.value;
+        },
+
+        change: function( el, property ) {
+            var properties = {};
+            properties[property] = this.getValue( el );
+            this.set( properties );
         }
     };
 
-    var extend = function (properties) {
+    var extend = function( properties ) {
         var parent = this;
 
-        var child = function (modelName) {
-            parent.call(this, modelName);
+        var MogClass = function () {
+            parent.apply( this, arguments );
         };
 
-        child.prototype = Object.create(parent.prototype);
+        MogClass.prototype = Object.create( parent.prototype );
 
-        parent.iterate(properties, function (properties, property) {
-            child.prototype[property] = properties[property];
+        parent.iterate( properties, function( properties, property ) {
+            MogClass.prototype[property] = properties[property];
         });
 
-        child.extend = parent.extend;
-        child.iterate = parent.iterate;
+        MogClass.extend = parent.extend;
+        MogClass.iterate = parent.iterate;
 
-        return child;
+        return MogClass;
     };
 
-    var iterate = function (list, fn) {
-        for (var item in list) {
-            if (list.hasOwnProperty(item)) {
-                fn.call(this, list, item);
+    var iterate = function( list, fn ) {
+        for ( var item in list ) {
+            if ( list.hasOwnProperty( item ) ) {
+                fn.call( this, list, item );
             }
         }
     };
@@ -211,4 +211,4 @@
 
     window.Mog = Mog;
 
-})(window, document);
+})( window, document );
