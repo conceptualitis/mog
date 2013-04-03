@@ -1,28 +1,34 @@
-body, html, h1, p, ul, li {
+body, html, h1, h2, h3, p, ul, li, pre {
     padding: 0;
     margin: 0;
     list-style: none;
 }
 
 body {
-    background-color: #666;
+    background-color: #f0f0f0;
     font-size: 100%;
     font-family: "Helvetica Neue", Helvetica, Arial, serif;
     -webkit-font-smoothing: antialiased;
-    color: #fff;
+    color: #333;
 }
 
-.wrapper {
-    width: 95%;
-    max-width: 980px;
-    margin: 0 auto;
+h1 {
+    font-size: 3.5em;
 }
 
-.panel {
-    position: relative;
-    width: 50%;
-    padding: 3em 0;
-    float: left;
+h2 {
+    padding: 0 1.5% .5em;
+    font-size: 2em;
+}
+
+h3 {
+    padding: 0 0 .5em;
+    font-size: 1.5em;
+}
+
+p {
+    padding-bottom: .75em;
+    line-height: 1.5em;
 }
 
 input[type='text'] {
@@ -32,6 +38,7 @@ input[type='text'] {
     border-radius: .25em;
     font-family: "Helvetica Neue", Helvetica, Arial, serif;
     font-size: 1em;
+    border: 1px solid #bbb;
 }
 
 textarea {
@@ -42,6 +49,62 @@ textarea {
     border-radius: .25em;
     font-family: "Helvetica Neue", Helvetica, Arial, serif;
     font-size: 1em;   
+}
+
+.code-block {
+    display: block;
+    padding: 1em;
+    margin-bottom: .75em;
+    border-radius: .3em;
+    border-bottom: 1px solid #fff;
+    background-color: #333;
+    font-size: .9em;
+    color: #fff;
+    overflow: auto;
+}
+
+.cf:before,
+.cf:after {
+    content: " ";
+    display: table;
+}
+.cf:after {
+    clear: both;
+}
+.cf {
+    *zoom: 1;
+}
+
+.half {
+    float: left;
+    width: 47%;
+    padding: 0 1.5% 2em;
+}
+
+.clear {
+    clear: both;
+}
+
+.wrapper {
+    width: 95%;
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.box {
+    padding: 2em 0;
+    border-top: 1px solid #fff;
+    border-bottom: 1px solid #bbb;
+}
+.box:nth-child(1) {
+    border-top: 0;
+}
+
+.panel {
+    position: relative;
+    width: 50%;
+    padding: 3em 0;
+    float: left;
 }
 
 .card {
