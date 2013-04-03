@@ -10,30 +10,19 @@
     "use strict";
 
     var Mog = function( modelName ) {
+        this.roles = [
+            "input",
+            "output",
+            "button"
+        ];
         this.model = modelName;
-        this.inputs = {};
-        this.outputs = {};
         this.data = {};
         this.pipeline = {};
-        this.initialize.call( this );
+        this.initialize.call( this, arguments );
     };
 
     Mog.prototype = {
         initialize: function () {},
-
-        getInfo: function( el ) {
-            var attribute,
-                role;
-
-            role = el.getAttribute( "data-mog-input" ) ? "input" : "output";
-            attribute = el.getAttribute( "data-mog-" + role );
-
-            return {
-                role: role,
-                group: role + "s",
-                property: attribute.slice( attribute.indexOf( "[" ) + 1, -1 )
-            };
-        },
 
         on: function( eventList, callBack ) {
             var events = eventList.split( "," );
@@ -47,44 +36,43 @@
             return this; // chaining
         },
 
-        trigger: function( event ) {
+        trigger: function( event, value ) {
             var i;
             if ( this.pipeline[event] && (i = this.pipeline[event].length) ) {
                 while ( i-- ) {
-                    this.pipeline[event][i].call( this );
+                    this.pipeline[event][i].call( this, value );
                 }
             }
         },
 
-        addElement: function( role, el, property ) {
-            this[role][property] = this[role][property] || [];
-            this[role][property].push({
-                el: el,
-                type: el.type,
-                checkable: ( el.type === "radio" || el.type === "checkbox" ) ? true : false
-            });
+        consume: function ( role ) {
+            var elements = document.querySelectorAll( "*[data-mog-" + role + "^='" + this.model + "']" ),
+                x = elements.length,
+                attribute,
+                property;
+
+            this[role + "s"] = this[role + "s"] || {};
+
+            while (x--) {
+                attribute = elements[x].getAttribute("data-mog-" + role);
+                property = attribute.slice( attribute.indexOf( "[" ) + 1, -1 );
+
+                this[role + "s"][property] = this[role + "s"][property] || [];
+                this[role + "s"][property].push({
+                    el: elements[x],
+                    role: role,
+                    property: property,
+                    type: elements[x].type,
+                    checkable: ( elements[x].type === "radio" || elements[x].type === "checkbox" ) ? true : false
+                });
+
+                elements[x].addEventListener( "change", this.change.bind( this, elements[x], property ) );
+                elements[x].addEventListener( "keyup", this.change.bind( this, elements[x], property ) );
+            }
         },
 
         sync: function () {
-            var all = document.querySelectorAll( "*[data-mog-input^='" + this.model + "'], *[data-mog-output^='" + this.model + "']" ),
-                i = all.length,
-                info;
-
-            while ( i-- ) {
-                info = this.getInfo( all[i] );
-
-                this.addElement( info.group, all[i], info.property);
-
-                if ( info.role === "input" ) {
-                    // attach appropriate listeners
-                    if ( all[i].type === "select-multiple" || all[i].type === "select-one" || all[i].type === "radio" ||  all[i].type === "checkbox" ) {
-                        all[i].addEventListener( "change", this.change.bind( this, all[i], info.property ) );
-                    } else {
-                        all[i].addEventListener( "keyup", this.change.bind( this, all[i], info.property ) );
-                    }
-                }
-            }
-
+            this.roles.forEach( this.consume, this );
             this.pull();
         },
 
@@ -92,18 +80,18 @@
             return this.data[property];
         },
 
-        set: function( properties ) {
-            var pushProps = [];
-
+        set: function( properties, stopProp ) {
             this.iterate( properties, function( properties, property ) {
                 this.data[property] = properties[property];
-                pushProps.push(property);
+                this.push(property);
 
+                // unless the event functionality is supressed, we
                 // trigger the event for more complex interactions
-                this.trigger( this.model + ".set." + property );
+                // and pass the new value
+                if ( !stopProp ) {
+                    this.trigger( "set." + property, properties[property] );
+                }
             });
-
-            this.push( pushProps );
         },
 
         // pulls data from the inputs into mog
@@ -120,68 +108,73 @@
             });
         },
 
-        pushInputs: function( property ) {
-            this.inputs[property].forEach(function( input, i ) {
-                if ( input.checkable ) {
-                    if ( this.data[property] === input.el.value || (input.type === "checkbox" && this.data[property] === true) ) {
-                        input.el.checked = true;
-                    }  else {
-                        input.el.checked = false;
-                    }
-                } else if (input.el !== document.activeElement) {
-                    input.el.value = this.data[property];
+        // takes [role][property] and moves its data[property] into it
+        disseminate: function ( elements ) {
+            elements.forEach(function( element, i ) {
+                switch ( element.role ) {
+                    case "input":
+                        if ( element.checkable ) {
+                            if ( this.data[element.property] === element.el.value || (element.type === "checkbox" && this.data[element.property] === true) ) {
+                                element.el.checked = true;
+                            }  else {
+                                element.el.checked = false;
+                            }
+                        } else if (element.el !== document.activeElement) {
+                            element.el.value = this.data[element.property];
+                        }
+                        break;
+
+                    case "output":
+                        element.el.innerHTML = this.data[element.property];
+                        break;
+
+                    case "button":
+                        break;
                 }
             }, this );
         },
 
-        pushOutputs: function( property ) {
-            this.outputs[property].forEach(function( output, i ) {
-                output.el.innerHTML = this.data[property];
+        // pushes data from mog to the inputs / outputs
+        push: function( property ) {
+            this.roles.forEach( function ( role ) {
+                if ( property === undefined ) {
+                    this.iterate( this[role + "s"], function( elements, property ) {
+                        this.disseminate(this[role + "s"][property]);
+                    });
+                } else if ( this[role + "s"][property] ) {
+                    this.disseminate(this[role + "s"][property]);
+                }
             }, this );
         },
 
-        // pushes data from mog to the inputs / outputs
-        push: function( pushProps ) {
-            if ( pushProps ) {
-                pushProps.forEach(function ( property ) {
-                    if ( this.inputs[property] ) {
-                        this.pushInputs(property);
-                    }
-                    if ( this.outputs[property] ) {
-                        this.pushOutputs( property );
-                    }
-                }, this );
-            } else {
-                this.iterate( this.inputs, function( inputs, property ) {
-                    this.pushInputs( property );
-                });
-                this.iterate( this.outputs, function( outputs, property ) {
-                    this.pushOutputs( property );
-                });
-            }
-        },
-
-        change: function( el, property ) {
-            var properties = {},
-                length = 0,
+        getValue: function ( el ) {
+            var length = 0,
                 collection = [];
 
             if ( el.type === "checkbox" && !el.checked ) {
-                properties[property] = null;
-            } else if ( el.type === "select-one" ) {
-                properties[property] = el[el.selectedIndex].text;
-            } else if ( el.type === "select-multiple" ) {
+                return null;
+            }
+
+            if ( el.type === "select-one" ) {
+                return el[el.selectedIndex].text;
+            }
+
+            if ( el.type === "select-multiple" ) {
                 length = el.selectedOptions.length;
 
                 while ( length-- ) {
                     collection.push( el.selectedOptions[length].text );
                 }
 
-                properties[property] = collection.join(", ");
-            } else {
-                properties[property] = el.value;
+                return collection.join(", ");
             }
 
+            return el.value;
+        },
+
+        change: function( el, property ) {
+            var properties = {};
+            properties[property] = this.getValue( el );
             this.set( properties );
         }
     };
@@ -189,8 +182,8 @@
     var extend = function( properties ) {
         var parent = this;
 
-        var MogClass = function( modelName ) {
-            parent.call( this, modelName );
+        var MogClass = function () {
+            parent.apply( this, arguments );
         };
 
         MogClass.prototype = Object.create( parent.prototype );
