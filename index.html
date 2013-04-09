@@ -144,6 +144,45 @@ var demo = new Demo("demo");
 
     <div class="box">
         <div class="wrapper cf">
+            <h2>Moving textarea values</h2>
+            
+            <div class="half">
+                <p>
+                    Mog moves textarea values into HTML.
+                </p>
+            </div>
+
+            <div class="half clear">
+                <h3>Input</h3>
+                <textarea data-mog-input="demo[about]">A little about me.</textarea>
+            </div>
+
+            <div class="half">
+                <h3>Output</h3>
+                <p data-mog-output="demo[about]">
+                    A little about me.
+                </p>
+            </div>
+
+            <div class="half clear">
+                <h3>HTML</h3>
+                <code class="code-block">
+                    &lt;textarea data-mog-input="demo[about]">A little about me.&lt;/textarea>
+                    <br>
+                    <em>&hellip;</em>
+                    <br>
+                    &lt;p data-mog-output="demo[about]">
+                    <br>
+                        A little about me.
+                    <br>
+                    &lt;/p>
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <div class="box">
+        <div class="wrapper cf">
             <h2>Moving select value</h2>
             
             <div class="half">
