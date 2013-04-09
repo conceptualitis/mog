@@ -47,7 +47,7 @@
             }
         },
 
-        // loads up callbacks to run in event namesapces
+        // loads up callbacks to run in event namespaces
         on: function( events, callBack ) {
             var cleanEvent;
 
