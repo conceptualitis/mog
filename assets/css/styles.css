@@ -34,18 +34,17 @@ p {
 input[type='text'] {
     width: 75%;
     padding: .5em;
-    border: 0;
+    border: 1px solid #bbb;
     border-radius: .25em;
     font-family: "Helvetica Neue", Helvetica, Arial, serif;
     font-size: 1em;
-    border: 1px solid #bbb;
 }
 
 textarea {
     width: 75%;
     height: 5.5em;
     padding: .5em;
-    border: 0;
+    border: 1px solid #bbb;
     border-radius: .25em;
     font-family: "Helvetica Neue", Helvetica, Arial, serif;
     font-size: 1em;   
